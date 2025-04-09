@@ -1,53 +1,73 @@
 
-import { ReportParams } from '@/types';
-import { getAuthToken } from './auth';
+import { STORAGE_KEYS } from './mockData';
+import { Recipe } from '@/types';
 
-const API_URL = 'https://api.recipebook.example'; // Replace with actual API URL when available
+export interface ReportParams {
+  type: 'category' | 'user';
+  categoryId?: string;
+  userId?: string;
+  format: 'xlsx' | 'xls' | 'pdf';
+}
 
 export async function generateReport(params: ReportParams): Promise<Blob> {
   try {
-    const token = getAuthToken();
-    if (!token) {
-      throw new Error('Authentication required');
-    }
-
-    const queryParams = new URLSearchParams();
-    queryParams.append('type', params.type);
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
     
-    if (params.userId) {
-      queryParams.append('userId', params.userId);
-    }
+    // Get recipes from localStorage
+    const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
     
-    if (params.categoryId) {
-      queryParams.append('categoryId', params.categoryId);
-    }
-    
-    queryParams.append('format', params.format);
-
-    const response = await fetch(`${API_URL}/reports?${queryParams.toString()}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    // Filter based on params
+    const filteredRecipes = recipes.filter((recipe: Recipe) => {
+      if (params.type === 'category' && params.categoryId) {
+        return recipe.categoryId === params.categoryId;
+      }
+      if (params.type === 'user' && params.userId) {
+        return recipe.userId === params.userId;
+      }
+      return false;
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate report');
-    }
-
-    return response.blob();
+    
+    // Create a simple text representation of the data
+    const reportText = filteredRecipes.map((recipe: Recipe) => {
+      return `Title: ${recipe.title}\nDescription: ${recipe.description}\nCooking time: ${recipe.cookingTime} min\nDifficulty: ${recipe.difficulty}\nIngredients: ${recipe.ingredients.join(', ')}\nInstructions: ${recipe.instructions}\n\n`;
+    }).join('---\n\n');
+    
+    // Generate a mock blob based on the format
+    const blob = new Blob([reportText], { type: getFileType(params.format) });
+    return blob;
   } catch (error) {
     console.error('Error generating report:', error);
     throw error;
   }
 }
 
-export function downloadReport(blob: Blob, filename: string): void {
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
+export function downloadReport(blob: Blob, fileName: string): void {
+  // Create a URL for the blob
+  const url = URL.createObjectURL(blob);
+  
+  // Create a temporary link element
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  
+  // Trigger download
+  document.body.appendChild(a);
+  a.click();
+  
+  // Clean up
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function getFileType(format: string): string {
+  switch (format) {
+    case 'xlsx':
+    case 'xls':
+      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    case 'pdf':
+      return 'application/pdf';
+    default:
+      return 'text/plain';
+  }
 }
