@@ -1,10 +1,9 @@
-
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Category } from "@/types";
@@ -92,10 +91,8 @@ export default function CreateRecipe() {
     try {
       setIsSubmitting(true);
       
-      // Map ingredients array to string array
       const ingredients = values.ingredients.map(ingredient => ingredient.name);
       
-      // Create recipe
       const recipeData = {
         title: values.title,
         ingredients,
@@ -106,7 +103,6 @@ export default function CreateRecipe() {
       
       const createdRecipe = await createRecipe(recipeData);
       
-      // Upload image if exists
       if (imageFile && createdRecipe.id) {
         await uploadRecipeImage(createdRecipe.id, imageFile);
       }
@@ -121,7 +117,8 @@ export default function CreateRecipe() {
     }
   };
   
-  const { fields: ingredientFields, append, remove } = form.useFieldArray({
+  const { fields: ingredientFields, append, remove } = useFieldArray({
+    control: form.control,
     name: "ingredients",
   });
   
@@ -315,7 +312,6 @@ export default function CreateRecipe() {
               </Card>
             </div>
             
-            {/* Image upload section */}
             <div>
               <Card>
                 <CardHeader>

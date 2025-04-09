@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { FileSpreadsheet, FilePdf, Loader2 } from "lucide-react";
+import { FileSpreadsheet, FileText, Loader2 } from "lucide-react";
 
 export default function Reports() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -177,7 +177,7 @@ export default function Reports() {
                           </SelectItem>
                           <SelectItem value="pdf">
                             <div className="flex items-center">
-                              <FilePdf size={14} className="mr-2" />
+                              <FileText size={14} className="mr-2" />
                               PDF
                             </div>
                           </SelectItem>
