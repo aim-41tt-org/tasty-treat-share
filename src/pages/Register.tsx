@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChefHat } from "lucide-react";
+import { ChefHat, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { register as apiRegister, setAuth } from "@/api/auth";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Validation schema
 const registerSchema = z.object({
@@ -47,6 +48,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function Register() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -60,6 +62,8 @@ export default function Register() {
 
   const onSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
+    setErrorMessage(null);
+    
     try {
       const response = await apiRegister(
         values.name,
@@ -73,7 +77,10 @@ export default function Register() {
       navigate("/");
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error("Ошибка при регистрации. Пожалуйста, попробуйте еще раз.");
+      setErrorMessage(error instanceof Error 
+        ? error.message 
+        : "Ошибка при регистрации. Пожалуйста, попробуйте еще раз.");
+      toast.error("Ошибка при регистрации");
     } finally {
       setIsLoading(false);
     }
@@ -95,6 +102,12 @@ export default function Register() {
         </div>
 
         <div className="bg-white p-8 rounded-lg shadow-md">
+          {errorMessage && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          )}
+          
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -168,7 +181,14 @@ export default function Register() {
                 className="w-full bg-recipe-600 hover:bg-recipe-700"
                 disabled={isLoading}
               >
-                {isLoading ? "Регистрация..." : "Зарегистрироваться"}
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <span>Регистрация...</span>
+                  </div>
+                ) : (
+                  "Зарегистрироваться"
+                )}
               </Button>
             </form>
           </Form>

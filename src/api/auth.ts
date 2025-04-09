@@ -3,48 +3,70 @@ import { AuthResponse, User } from '@/types';
 
 const API_URL = 'https://api.recipebook.example'; // Replace with actual API URL when available
 
+// Simulated local storage for demo purposes
+const LOCAL_USERS = 'recipe_book_users';
+
+/**
+ * Registers a new user and simulates API response
+ */
 export async function register(name: string, username: string, password: string, email: string): Promise<AuthResponse> {
-  try {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name, username, password, email }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to register');
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error('Registration error:', error);
-    throw error;
+  // For demo purposes, check if username exists in local storage
+  const existingUsers = JSON.parse(localStorage.getItem(LOCAL_USERS) || '[]');
+  const userExists = existingUsers.some((user: User) => user.username === username || user.email === email);
+  
+  if (userExists) {
+    throw new Error('Пользователь с таким логином или email уже существует');
   }
+
+  // Create new user
+  const newUser: User = {
+    id: `user-${Date.now()}`,
+    name,
+    username,
+    email,
+  };
+
+  // Add user to "database"
+  existingUsers.push(newUser);
+  localStorage.setItem(LOCAL_USERS, JSON.stringify(existingUsers));
+
+  // Create auth response with token
+  const authResponse: AuthResponse = {
+    user: newUser,
+    token: `demo-token-${Date.now()}`
+  };
+
+  // Simulate network delay for realism
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Save auth data
+  setAuth(authResponse);
+  
+  return authResponse;
 }
 
 export async function login(username: string, password: string): Promise<AuthResponse> {
-  try {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to login');
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error('Login error:', error);
-    throw error;
+  // For demo purposes, check if user exists in local storage
+  const existingUsers = JSON.parse(localStorage.getItem(LOCAL_USERS) || '[]');
+  const user = existingUsers.find((u: User) => u.username === username);
+  
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  if (!user) {
+    throw new Error('Неверный логин или пароль');
   }
+
+  // Create auth response
+  const authResponse: AuthResponse = {
+    user,
+    token: `demo-token-${Date.now()}`
+  };
+  
+  // Save auth data
+  setAuth(authResponse);
+  
+  return authResponse;
 }
 
 export async function logout(): Promise<void> {
