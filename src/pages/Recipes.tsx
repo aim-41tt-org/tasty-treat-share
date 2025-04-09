@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useEffect, useState } from "react";
@@ -18,8 +17,8 @@ export default function Recipes() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("all");
 
   useEffect(() => {
     const loadRecipes = async () => {
@@ -44,15 +43,15 @@ export default function Recipes() {
 
   const filteredRecipes = recipes.filter(recipe => {
     const matchesSearch = recipe.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory ? recipe.categoryId === selectedCategory : true;
-    const matchesDifficulty = selectedDifficulty ? recipe.difficulty === selectedDifficulty : true;
+    const matchesCategory = selectedCategory === "all" ? true : recipe.categoryId === selectedCategory;
+    const matchesDifficulty = selectedDifficulty === "all" ? true : recipe.difficulty === selectedDifficulty;
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
   const resetFilters = () => {
     setSearchTerm("");
-    setSelectedCategory("");
-    setSelectedDifficulty("");
+    setSelectedCategory("all");
+    setSelectedDifficulty("all");
   };
 
   return (
@@ -72,7 +71,6 @@ export default function Recipes() {
               </Button>
             </div>
             
-            {/* Filters */}
             <div className="bg-white p-4 rounded-lg shadow-sm mb-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
@@ -90,7 +88,7 @@ export default function Recipes() {
                     <SelectValue placeholder="Выберите категорию" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Все категории</SelectItem>
+                    <SelectItem value="all">Все категории</SelectItem>
                     {categories.map(category => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
@@ -104,7 +102,7 @@ export default function Recipes() {
                     <SelectValue placeholder="Уровень сложности" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Все уровни</SelectItem>
+                    <SelectItem value="all">Все уровни</SelectItem>
                     <SelectItem value="easy">Легкий</SelectItem>
                     <SelectItem value="medium">Средний</SelectItem>
                     <SelectItem value="hard">Сложный</SelectItem>
@@ -112,7 +110,7 @@ export default function Recipes() {
                 </Select>
               </div>
               
-              {(searchTerm || selectedCategory || selectedDifficulty) && (
+              {(searchTerm || selectedCategory !== "all" || selectedDifficulty !== "all") && (
                 <div className="mt-4 flex justify-end">
                   <Button 
                     variant="outline" 
@@ -126,7 +124,6 @@ export default function Recipes() {
               )}
             </div>
             
-            {/* Recipe Grid */}
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <Loader2 className="h-10 w-10 text-recipe-600 animate-spin mb-4" />
