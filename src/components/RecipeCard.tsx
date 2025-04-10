@@ -2,11 +2,14 @@
 import { Recipe } from '@/types';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Share2, Clock, ChefHat } from 'lucide-react';
+import { Share2, Clock, ChefHat, BookmarkIcon, BookmarkedIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ShareRecipeDialog } from './ShareRecipeDialog';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { saveRecipe, unsaveRecipe, isRecipeSaved } from '@/api/recipes';
+import { toast } from 'sonner';
+import { getCurrentUser } from '@/api/auth';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -34,12 +37,52 @@ const getDifficultyColor = (difficulty: string) => {
 
 export function RecipeCard({ recipe }: RecipeCardProps) {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   const placeholderImage = 'https://via.placeholder.com/300x200?text=No+Image';
+  
+  useEffect(() => {
+    const checkIfSaved = async () => {
+      const savedStatus = await isRecipeSaved(recipe.id);
+      setIsSaved(savedStatus);
+    };
+    
+    const user = getCurrentUser();
+    setIsLoggedIn(!!user);
+    
+    checkIfSaved();
+  }, [recipe.id]);
   
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
     return `${text.substring(0, maxLength)}...`;
+  };
+  
+  const handleSaveToggle = async () => {
+    if (!isLoggedIn) {
+      toast.error("Пожалуйста, войдите в аккаунт, чтобы сохранять рецепты");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      if (isSaved) {
+        await unsaveRecipe(recipe.id);
+        setIsSaved(false);
+        toast.success("Рецепт удален из избранного");
+      } else {
+        await saveRecipe(recipe.id);
+        setIsSaved(true);
+        toast.success("Рецепт добавлен в избранное");
+      }
+    } catch (error) {
+      console.error("Error toggling save status:", error);
+      toast.error("Не удалось изменить статус рецепта");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -58,8 +101,20 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
           </Badge>
         </div>
         <CardHeader className="pb-2">
-          <div className="flex justify-between items-start">
-            <h3 className="text-lg font-bold line-clamp-2">{recipe.title}</h3>
+          <div className="flex justify-between items-start gap-2">
+            <h3 className="text-lg font-bold line-clamp-2 flex-grow">{recipe.title}</h3>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="p-1 h-auto shrink-0"
+              onClick={handleSaveToggle}
+              disabled={isLoading}
+            >
+              {isSaved ? 
+                <BookmarkedIcon size={18} className="text-recipe-600" /> : 
+                <BookmarkIcon size={18} className="text-gray-500 hover:text-recipe-600" />
+              }
+            </Button>
           </div>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             <ChefHat size={14} />

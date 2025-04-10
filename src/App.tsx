@@ -8,6 +8,9 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Recipes from "./pages/Recipes";
+import RecipeDetail from "./pages/RecipeDetail";
+import MyRecipes from "./pages/MyRecipes";
+import SavedRecipes from "./pages/SavedRecipes";
 import CreateRecipe from "./pages/CreateRecipe";
 import Categories from "./pages/Categories";
 import Reports from "./pages/Reports";
@@ -26,6 +29,9 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/recipes" element={<Recipes />} />
+          <Route path="/recipes/:id" element={<RecipeDetail />} />
+          <Route path="/my-recipes" element={<MyRecipes />} />
+          <Route path="/saved-recipes" element={<SavedRecipes />} />
           <Route path="/recipes/new" element={<CreateRecipe />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/reports" element={<Reports />} />

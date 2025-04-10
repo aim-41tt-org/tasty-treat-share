@@ -6,6 +6,9 @@ import { STORAGE_KEYS, initializeMockData } from './mockData';
 // Initialize mock data
 initializeMockData();
 
+// Константа для сохраненных рецептов
+const SAVED_RECIPES_KEY = "saved-recipes";
+
 export async function getRecipes(): Promise<Recipe[]> {
   try {
     // Simulate network delay
@@ -115,7 +118,7 @@ export async function deleteRecipe(id: string): Promise<void> {
   }
 }
 
-// Add this new function
+// Функция для получения ссылки для шаринга
 export async function getShareLink(recipeId: string): Promise<string> {
   try {
     // Simulate network delay
@@ -131,7 +134,7 @@ export async function getShareLink(recipeId: string): Promise<string> {
   }
 }
 
-// Update this function to accept recipeId as first parameter
+// Функция для загрузки изображения рецепта
 export async function uploadRecipeImage(recipeId: string, imageFile: File): Promise<string> {
   try {
     // Simulate network delay for file upload
@@ -148,5 +151,57 @@ export async function uploadRecipeImage(recipeId: string, imageFile: File): Prom
   } catch (error) {
     console.error('Error uploading image:', error);
     throw error;
+  }
+}
+
+// Функция для сохранения рецепта в избранное
+export async function saveRecipe(recipeId: string): Promise<void> {
+  try {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Получаем текущий список сохраненных рецептов
+    const savedRecipes = JSON.parse(localStorage.getItem(SAVED_RECIPES_KEY) || '[]');
+    
+    // Проверяем, не сохранен ли уже этот рецепт
+    if (!savedRecipes.includes(recipeId)) {
+      savedRecipes.push(recipeId);
+      localStorage.setItem(SAVED_RECIPES_KEY, JSON.stringify(savedRecipes));
+    }
+  } catch (error) {
+    console.error(`Error saving recipe ${recipeId}:`, error);
+    throw error;
+  }
+}
+
+// Функция для удаления рецепта из избранного
+export async function unsaveRecipe(recipeId: string): Promise<void> {
+  try {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Получаем текущий список сохраненных рецептов
+    const savedRecipes = JSON.parse(localStorage.getItem(SAVED_RECIPES_KEY) || '[]');
+    
+    // Удаляем рецепт из списка
+    const updatedSavedRecipes = savedRecipes.filter((id: string) => id !== recipeId);
+    localStorage.setItem(SAVED_RECIPES_KEY, JSON.stringify(updatedSavedRecipes));
+  } catch (error) {
+    console.error(`Error removing saved recipe ${recipeId}:`, error);
+    throw error;
+  }
+}
+
+// Функция для проверки, сохранен ли рецепт
+export async function isRecipeSaved(recipeId: string): Promise<boolean> {
+  try {
+    // Получаем текущий список сохраненных рецептов
+    const savedRecipes = JSON.parse(localStorage.getItem(SAVED_RECIPES_KEY) || '[]');
+    
+    // Проверяем наличие рецепта в списке
+    return savedRecipes.includes(recipeId);
+  } catch (error) {
+    console.error(`Error checking if recipe ${recipeId} is saved:`, error);
+    return false;
   }
 }
