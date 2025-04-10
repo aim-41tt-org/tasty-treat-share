@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useEffect, useState } from "react";
@@ -43,6 +44,9 @@ const ingredientSchema = z.object({
 
 const recipeSchema = z.object({
   title: z.string().min(3, { message: "Название должно содержать не менее 3 символов" }),
+  description: z.string().min(10, { message: "Описание должно содержать не менее 10 символов" }),
+  cookingTime: z.number().min(1, { message: "Время приготовления должно быть не менее 1 минуты" }),
+  servings: z.number().min(1, { message: "Количество порций должно быть не менее 1" }),
   ingredients: z.array(ingredientSchema),
   instructions: z.string().min(20, { message: "Инструкции должны содержать не менее 20 символов" }),
   difficulty: z.enum(["easy", "medium", "hard"], {
@@ -66,6 +70,9 @@ export default function CreateRecipe() {
     resolver: zodResolver(recipeSchema),
     defaultValues: {
       title: "",
+      description: "",
+      cookingTime: 30,
+      servings: 2,
       ingredients: [{ name: "" }],
       instructions: "",
       difficulty: "medium",
@@ -95,6 +102,9 @@ export default function CreateRecipe() {
       
       const recipeData = {
         title: values.title,
+        description: values.description,
+        cookingTime: values.cookingTime,
+        servings: values.servings,
         ingredients,
         instructions: values.instructions,
         difficulty: values.difficulty,
@@ -177,6 +187,68 @@ export default function CreateRecipe() {
                           </FormItem>
                         )}
                       />
+
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Краткое описание</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="Краткое описание вашего рецепта" 
+                                {...field} 
+                                className="recipe-input"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="cookingTime"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Время приготовления (минут)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  min="1"
+                                  placeholder="30" 
+                                  {...field} 
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                  className="recipe-input"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="servings"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Количество порций</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  min="1"
+                                  placeholder="2" 
+                                  {...field} 
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                  className="recipe-input"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       
                       <div>
                         <FormLabel>Ингредиенты</FormLabel>

@@ -131,8 +131,8 @@ export async function getShareLink(recipeId: string): Promise<string> {
   }
 }
 
-// Add this new function
-export async function uploadRecipeImage(imageFile: File): Promise<string> {
+// Update this function to accept recipeId as first parameter
+export async function uploadRecipeImage(recipeId: string, imageFile: File): Promise<string> {
   try {
     // Simulate network delay for file upload
     await new Promise(resolve => setTimeout(resolve, 1000));
