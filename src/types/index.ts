@@ -44,6 +44,8 @@ export interface Recipe extends RecipeCreateData {
   updatedAt: string;
   image?: string;
   likes?: number;
+  imageUrl?: string;  // Added property for RecipeCard.tsx
+  userName?: string;  // Added property for backward compatibility
 }
 
 export interface RecipeComment {

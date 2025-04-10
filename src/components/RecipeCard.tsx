@@ -47,7 +47,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
       <Card className="recipe-card overflow-hidden h-full flex flex-col">
         <div className="relative h-48 overflow-hidden">
           <img 
-            src={recipe.imageUrl || placeholderImage} 
+            src={recipe.image || recipe.imageUrl || placeholderImage} 
             alt={recipe.title}
             className="w-full h-full object-cover"
           />
@@ -63,7 +63,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
           </div>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             <ChefHat size={14} />
-            {recipe.userName}
+            {recipe.userName || recipe.authorName}
           </p>
         </CardHeader>
         <CardContent className="pb-2 flex-grow">

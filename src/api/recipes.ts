@@ -114,3 +114,39 @@ export async function deleteRecipe(id: string): Promise<void> {
     throw error;
   }
 }
+
+// Add this new function
+export async function getShareLink(recipeId: string): Promise<string> {
+  try {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Create a shareable link (in a real app, this might involve creating a short URL or specific share token)
+    // For our mock implementation, we'll just use the current domain + recipe path
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/recipes/${recipeId}`;
+  } catch (error) {
+    console.error(`Error generating share link for recipe ${recipeId}:`, error);
+    throw error;
+  }
+}
+
+// Add this new function
+export async function uploadRecipeImage(imageFile: File): Promise<string> {
+  try {
+    // Simulate network delay for file upload
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // In a real app, this would upload to a CDN or server
+    // For our mock implementation, we'll create a data URL
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(imageFile);
+    });
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    throw error;
+  }
+}
