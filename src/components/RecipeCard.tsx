@@ -2,7 +2,7 @@
 import { Recipe } from '@/types';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Share2, Clock, ChefHat, BookmarkIcon, BookmarkedIcon } from 'lucide-react';
+import { Share2, Clock, ChefHat, BookmarkIcon, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ShareRecipeDialog } from './ShareRecipeDialog';
@@ -111,7 +111,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
               disabled={isLoading}
             >
               {isSaved ? 
-                <BookmarkedIcon size={18} className="text-recipe-600" /> : 
+                <Bookmark size={18} className="text-recipe-600 fill-current" /> : 
                 <BookmarkIcon size={18} className="text-gray-500 hover:text-recipe-600" />
               }
             </Button>
