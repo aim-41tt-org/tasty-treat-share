@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useEffect, useState } from "react";
@@ -11,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Link } from "react-router-dom";
 import { Plus, Search, FilterX, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Recipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -19,6 +21,7 @@ export default function Recipes() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     const loadRecipes = async () => {
@@ -55,14 +58,14 @@ export default function Recipes() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark' : ''}`}>
       <Header />
       
       <main className="flex-grow">
-        <div className="bg-recipe-100 py-10">
+        <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-recipe-100'} py-10 transition-colors duration-300`}>
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-              <h1 className="text-3xl font-bold text-recipe-900">Все рецепты</h1>
+              <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-recipe-900'}`}>Все рецепты</h1>
               <Button asChild className="bg-recipe-600 hover:bg-recipe-700">
                 <Link to="/recipes/new" className="flex items-center gap-2">
                   <Plus size={16} />
@@ -71,7 +74,7 @@ export default function Recipes() {
               </Button>
             </div>
             
-            <div className="bg-white p-4 rounded-lg shadow-sm mb-8">
+            <div className={`${isDarkMode ? 'bg-gray-900' : 'bg-white'} p-4 rounded-lg shadow-sm mb-8 transition-colors duration-300`}>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -127,7 +130,7 @@ export default function Recipes() {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <Loader2 className="h-10 w-10 text-recipe-600 animate-spin mb-4" />
-                <p className="text-gray-500">Загрузка рецептов...</p>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>Загрузка рецептов...</p>
               </div>
             ) : filteredRecipes.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -136,9 +139,9 @@ export default function Recipes() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-20 bg-white rounded-lg shadow-sm">
-                <h3 className="text-xl font-medium text-gray-700 mb-2">Рецепты не найдены</h3>
-                <p className="text-gray-500 mb-6">Попробуйте изменить параметры поиска или сбросить фильтры</p>
+              <div className={`text-center py-20 ${isDarkMode ? 'bg-gray-900' : 'bg-white'} rounded-lg shadow-sm transition-colors duration-300`}>
+                <h3 className={`text-xl font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'} mb-2`}>Рецепты не найдены</h3>
+                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-6`}>Попробуйте изменить параметры поиска или сбросить фильтры</p>
                 <Button 
                   variant="outline" 
                   onClick={resetFilters}
