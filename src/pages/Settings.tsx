@@ -12,11 +12,15 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { getCurrentUser } from '@/api/auth';
 import { User } from '@/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Settings = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  // Получаем состояние темы и функцию переключения из контекста
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -28,7 +32,6 @@ const Settings = () => {
       comments: false,
     },
     preferences: {
-      darkMode: false,
       defaultLanguage: 'ru',
     }
   });
@@ -63,16 +66,6 @@ const Settings = () => {
       notifications: {
         ...prev.notifications,
         [key]: !prev.notifications[key as keyof typeof prev.notifications]
-      }
-    }));
-  };
-
-  const handlePreferenceToggle = (key: string) => {
-    setFormData(prev => ({
-      ...prev,
-      preferences: {
-        ...prev.preferences,
-        [key]: !prev.preferences[key as keyof typeof prev.preferences]
       }
     }));
   };
@@ -249,8 +242,8 @@ const Settings = () => {
                       </div>
                       <Switch 
                         id="darkMode" 
-                        checked={formData.preferences.darkMode}
-                        onCheckedChange={() => handlePreferenceToggle('darkMode')}
+                        checked={isDarkMode}
+                        onCheckedChange={toggleDarkMode}
                       />
                     </div>
                   </div>
