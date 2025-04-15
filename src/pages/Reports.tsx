@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { FileSpreadsheet, FileText, Loader2 } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Reports() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -26,6 +27,7 @@ export default function Reports() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedFormat, setSelectedFormat] = useState<'xlsx' | 'xls' | 'pdf'>('xlsx');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { isDarkMode } = useTheme();
   
   useEffect(() => {
     const loadData = async () => {
@@ -82,15 +84,15 @@ export default function Reports() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark' : ''}`}>
       <Header />
       
-      <main className="flex-grow bg-recipe-50 py-8">
+      <main className={`flex-grow ${isDarkMode ? 'bg-gray-900' : 'bg-recipe-50'} py-8 transition-colors duration-300`}>
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-8 text-recipe-900">Генерация отчетов</h1>
+          <h1 className={`text-3xl font-bold mb-8 ${isDarkMode ? 'text-gray-100' : 'text-recipe-900'}`}>Генерация отчетов</h1>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card>
+            <Card className={isDarkMode ? 'bg-gray-800 text-gray-100 border-gray-700' : ''}>
               <CardHeader>
                 <CardTitle>Параметры отчета</CardTitle>
               </CardHeader>
@@ -107,10 +109,10 @@ export default function Reports() {
                         value={selectedType}
                         onValueChange={(value) => setSelectedType(value as 'user' | 'category')}
                       >
-                        <SelectTrigger className="recipe-input">
+                        <SelectTrigger className={`recipe-input ${isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : ''}`}>
                           <SelectValue placeholder="Выберите тип отчета" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className={isDarkMode ? 'bg-gray-800 text-gray-100 border-gray-700' : ''}>
                           <SelectItem value="category">По категории</SelectItem>
                           <SelectItem value="user">По пользователю</SelectItem>
                         </SelectContent>
@@ -125,10 +127,10 @@ export default function Reports() {
                           onValueChange={setSelectedCategory}
                           disabled={categories.length === 0}
                         >
-                          <SelectTrigger className="recipe-input">
+                          <SelectTrigger className={`recipe-input ${isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : ''}`}>
                             <SelectValue placeholder="Выберите категорию" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className={isDarkMode ? 'bg-gray-800 text-gray-100 border-gray-700' : ''}>
                             {categories.map(category => (
                               <SelectItem key={category.id} value={category.id}>
                                 {category.name}
@@ -137,7 +139,7 @@ export default function Reports() {
                           </SelectContent>
                         </Select>
                         {categories.length === 0 && (
-                          <p className="text-xs text-muted-foreground">
+                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-muted-foreground'}`}>
                             Нет доступных категорий. Создайте категорию, прежде чем генерировать отчет.
                           </p>
                         )}
@@ -147,7 +149,7 @@ export default function Reports() {
                     {selectedType === 'user' && currentUser && (
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Пользователь</label>
-                        <div className="p-2 border rounded bg-muted">
+                        <div className={`p-2 border rounded ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-muted'}`}>
                           {currentUser.name} ({currentUser.username})
                         </div>
                       </div>
@@ -159,10 +161,10 @@ export default function Reports() {
                         value={selectedFormat}
                         onValueChange={(value) => setSelectedFormat(value as 'xlsx' | 'xls' | 'pdf')}
                       >
-                        <SelectTrigger className="recipe-input">
+                        <SelectTrigger className={`recipe-input ${isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : ''}`}>
                           <SelectValue placeholder="Выберите формат" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className={isDarkMode ? 'bg-gray-800 text-gray-100 border-gray-700' : ''}>
                           <SelectItem value="xlsx">
                             <div className="flex items-center">
                               <FileSpreadsheet size={14} className="mr-2" />
@@ -208,7 +210,7 @@ export default function Reports() {
               </CardContent>
             </Card>
             
-            <Card className="lg:col-span-2">
+            <Card className={`lg:col-span-2 ${isDarkMode ? 'bg-gray-800 text-gray-100 border-gray-700' : ''}`}>
               <CardHeader>
                 <CardTitle>О генерации отчетов</CardTitle>
               </CardHeader>
@@ -218,14 +220,14 @@ export default function Reports() {
                 </p>
                 
                 <div className="space-y-4 mt-4">
-                  <div className="bg-recipe-100 p-4 rounded-md">
+                  <div className={`${isDarkMode ? 'bg-gray-700' : 'bg-recipe-100'} p-4 rounded-md`}>
                     <h3 className="text-lg font-semibold mb-2">Отчет по категории</h3>
                     <p className="text-sm">
                       Получите список всех рецептов в выбранной категории с подробной информацией о каждом рецепте (название, автор, ингредиенты, инструкции).
                     </p>
                   </div>
                   
-                  <div className="bg-recipe-100 p-4 rounded-md">
+                  <div className={`${isDarkMode ? 'bg-gray-700' : 'bg-recipe-100'} p-4 rounded-md`}>
                     <h3 className="text-lg font-semibold mb-2">Отчет по пользователю</h3>
                     <p className="text-sm">
                       Сформируйте список всех ваших рецептов с полной информацией о каждом из них.
@@ -233,7 +235,7 @@ export default function Reports() {
                   </div>
                 </div>
                 
-                <p className="text-sm text-muted-foreground mt-4">
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-muted-foreground'} mt-4`}>
                   Все отчеты можно скачать в удобном для вас формате (XLSX, XLS или PDF) для дальнейшего использования или печати.
                 </p>
               </CardContent>

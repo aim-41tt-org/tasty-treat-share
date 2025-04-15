@@ -37,11 +37,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Edit, Plus, Trash2, Loader2 } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Categories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isDarkMode } = useTheme();
   
   // For category creation
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -132,13 +134,13 @@ export default function Categories() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark' : ''}`}>
       <Header />
       
-      <main className="flex-grow bg-recipe-50 py-8">
+      <main className={`flex-grow ${isDarkMode ? 'bg-gray-900' : 'bg-recipe-50'} py-8 transition-colors duration-300`}>
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-recipe-900">Управление категориями</h1>
+            <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-recipe-900'}`}>Управление категориями</h1>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-recipe-600 hover:bg-recipe-700">
@@ -146,10 +148,10 @@ export default function Categories() {
                   Создать категорию
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className={isDarkMode ? 'dark bg-gray-800 text-gray-100 border-gray-700' : ''}>
                 <DialogHeader>
                   <DialogTitle>Создать новую категорию</DialogTitle>
-                  <DialogDescription>
+                  <DialogDescription className={isDarkMode ? 'text-gray-400' : ''}>
                     Добавьте название и описание для новой категории рецептов.
                   </DialogDescription>
                 </DialogHeader>
@@ -209,10 +211,10 @@ export default function Categories() {
           
           {/* Edit Category Dialog */}
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent>
+            <DialogContent className={isDarkMode ? 'dark bg-gray-800 text-gray-100 border-gray-700' : ''}>
               <DialogHeader>
                 <DialogTitle>Редактировать категорию</DialogTitle>
-                <DialogDescription>
+                <DialogDescription className={isDarkMode ? 'text-gray-400' : ''}>
                   Измените название и описание категории.
                 </DialogDescription>
               </DialogHeader>
@@ -268,69 +270,72 @@ export default function Categories() {
           </Dialog>
           
           {/* Categories Table */}
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className={`${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'} rounded-lg shadow-sm overflow-hidden transition-colors duration-300`}>
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 text-recipe-600 animate-spin" />
-                <span className="ml-2">Загрузка категорий...</span>
+                <Loader2 className={`h-8 w-8 text-recipe-600 animate-spin`} />
+                <span className={`ml-2 ${isDarkMode ? 'text-gray-300' : ''}`}>Загрузка категорий...</span>
               </div>
             ) : categories.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Название</TableHead>
-                    <TableHead>Описание</TableHead>
-                    <TableHead className="text-right">Действия</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {categories.map((category) => (
-                    <TableRow key={category.id}>
-                      <TableCell className="font-medium">{category.name}</TableCell>
-                      <TableCell>{category.description || "-"}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openEditDialog(category)}
-                          >
-                            <Edit size={16} className="text-amber-500" />
-                          </Button>
-                          
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <Trash2 size={16} className="text-red-500" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Это действие нельзя отменить. Категория "{category.name}" будет удалена.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Отмена</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleDeleteCategory(category.id)}
-                                  className="bg-red-500 hover:bg-red-600"
-                                >
-                                  Удалить
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
+              <div className={isDarkMode ? 'text-gray-100' : ''}>
+                <Table>
+                  <TableHeader className={isDarkMode ? 'bg-gray-900 border-gray-700' : ''}>
+                    <TableRow>
+                      <TableHead>Название</TableHead>
+                      <TableHead>Описание</TableHead>
+                      <TableHead className="text-right">Действия</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {categories.map((category) => (
+                      <TableRow key={category.id} className={isDarkMode ? 'border-gray-700 hover:bg-gray-700/50' : ''}>
+                        <TableCell className="font-medium">{category.name}</TableCell>
+                        <TableCell>{category.description || "-"}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEditDialog(category)}
+                              className={isDarkMode ? 'hover:bg-gray-700' : ''}
+                            >
+                              <Edit size={16} className="text-amber-500" />
+                            </Button>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="sm" className={isDarkMode ? 'hover:bg-gray-700' : ''}>
+                                  <Trash2 size={16} className="text-red-500" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className={isDarkMode ? 'bg-gray-800 text-gray-100 border-gray-700' : ''}>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
+                                  <AlertDialogDescription className={isDarkMode ? 'text-gray-400' : ''}>
+                                    Это действие нельзя отменить. Категория "{category.name}" будет удалена.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className={isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-100' : ''}>Отмена</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteCategory(category.id)}
+                                    className="bg-red-500 hover:bg-red-600"
+                                  >
+                                    Удалить
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             ) : (
               <div className="text-center py-10">
-                <p className="text-gray-500 mb-4">У вас пока нет категорий</p>
+                <p className={`mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>У вас пока нет категорий</p>
                 <Button 
                   onClick={() => setIsCreateDialogOpen(true)}
                   className="bg-recipe-600 hover:bg-recipe-700"
