@@ -12,6 +12,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   // Инициализируем тему из localStorage или используем системные настройки
   const [isDarkMode, setIsDarkMode] = useState(() => {
     // Проверяем сохраненные настройки
+    if (typeof window === 'undefined') return false;
+    
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       return savedTheme === 'dark';
@@ -22,11 +24,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   // Применяем тему к документу
   useEffect(() => {
+    // Сначала удаляем все классы темы для избежания конфликтов
+    document.documentElement.classList.remove('light', 'dark');
+    
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
       localStorage.setItem('theme', 'light');
     }
   }, [isDarkMode]);

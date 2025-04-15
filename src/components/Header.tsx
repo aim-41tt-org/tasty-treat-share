@@ -15,10 +15,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useState, useEffect } from 'react';
 import { User as UserType } from '@/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function Header() {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserType | null>(null);
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -33,7 +35,7 @@ export function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className={`${isDarkMode ? 'bg-gray-900' : 'bg-white'} shadow-sm transition-colors duration-300`}>
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2">
           <ChefHat size={30} className="text-recipe-600" />
@@ -71,7 +73,7 @@ export function Header() {
                   {user.name}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-white">
+              <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Мой аккаунт</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/settings')}>

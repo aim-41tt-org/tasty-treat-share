@@ -103,7 +103,7 @@ const Settings = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'dark' : ''}`}>
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Настройки профиля</h1>

@@ -1,9 +1,12 @@
 
 import { ChefHat } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export function Footer() {
+  const { isDarkMode } = useTheme();
+  
   return (
-    <footer className="bg-recipe-100 py-8 mt-auto">
+    <footer className={`${isDarkMode ? 'bg-gray-900 text-gray-200' : 'bg-recipe-100'} py-8 mt-auto transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
