@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface ThemeContextType {
@@ -9,22 +8,23 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  // Инициализируем тему из localStorage или используем системные настройки
+  // Initialize theme to light mode by default
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Проверяем сохраненные настройки
-    if (typeof window === 'undefined') return false;
-    
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      return savedTheme === 'dark';
+    // If localStorage has a saved theme, use that
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        return savedTheme === 'dark';
+      }
     }
-    // Если настройки не сохранены, проверяем системные предпочтения
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // Otherwise, default to light mode
+    return false;
   });
 
-  // Применяем тему к документу
+  // Apply theme to document
   useEffect(() => {
-    // Сначала удаляем все классы темы для избежания конфликтов
+    // Remove all theme classes first
     document.documentElement.classList.remove('light', 'dark');
     
     if (isDarkMode) {
@@ -47,7 +47,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Хук для использования контекста темы
+// Hook to use theme context
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
