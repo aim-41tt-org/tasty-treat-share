@@ -1,3 +1,4 @@
+
 # Welcome to your Lovable project
 
 ## Project info
@@ -49,6 +50,72 @@ npm run dev
 - Select the "Codespaces" tab.
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
+
+## Running with Docker
+
+You can run this application in a Docker container for a consistent environment across platforms. Follow these steps:
+
+### Prerequisites
+- Install [Docker](https://docs.docker.com/get-docker/) on your system
+
+### Steps to run with Docker
+
+1. **Create a Dockerfile** in the root of your project:
+
+```
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+```
+
+2. **Build the Docker image**:
+
+```sh
+docker build -t recipe-app .
+```
+
+3. **Run the container**:
+
+```sh
+docker run -p 5173:5173 recipe-app
+```
+
+4. **Access your application** at http://localhost:5173
+
+### Using Docker Compose (optional)
+
+For a more streamlined development experience, you can use Docker Compose:
+
+1. **Create a docker-compose.yml file**:
+
+```yaml
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+```
+
+2. **Start the application with**:
+
+```sh
+docker-compose up
+```
+
+3. Any changes you make to your files will be reflected in real-time.
 
 ## What technologies are used for this project?
 
