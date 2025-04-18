@@ -15,7 +15,8 @@ export async function generateReport(params: ReportParams): Promise<Blob> {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     // Get recipes from localStorage
-    const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+    const recipesJson = localStorage.getItem(STORAGE_KEYS.RECIPES);
+    const recipes = recipesJson ? JSON.parse(recipesJson) : [];
     
     // Filter based on params
     const filteredRecipes = recipes.filter((recipe: Recipe) => {
@@ -28,18 +29,71 @@ export async function generateReport(params: ReportParams): Promise<Blob> {
       return false;
     });
     
-    // Create a simple text representation of the data
-    const reportText = filteredRecipes.map((recipe: Recipe) => {
-      return `Title: ${recipe.title}\nDescription: ${recipe.description}\nCooking time: ${recipe.cookingTime} min\nDifficulty: ${recipe.difficulty}\nIngredients: ${recipe.ingredients.join(', ')}\nInstructions: ${recipe.instructions}\n\n`;
-    }).join('---\n\n');
+    // Prepare report data based on format
+    if (filteredRecipes.length === 0) {
+      throw new Error('No recipes found for selected criteria');
+    }
+
+    // Create a report content based on the format
+    let content = '';
     
-    // Generate a mock blob based on the format
-    const blob = new Blob([reportText], { type: getFileType(params.format) });
+    if (params.format === 'pdf') {
+      content = createPDFContent(filteredRecipes);
+    } else {
+      content = createSpreadsheetContent(filteredRecipes);
+    }
+    
+    // Generate a blob based on the format
+    const blob = new Blob([content], { type: getFileType(params.format) });
     return blob;
   } catch (error) {
     console.error('Error generating report:', error);
     throw error;
   }
+}
+
+function createPDFContent(recipes: Recipe[]): string {
+  // Create a simple PDF representation
+  let content = 'RECIPE REPORT\n\n';
+  
+  recipes.forEach((recipe: Recipe, index) => {
+    content += `RECIPE #${index + 1}\n`;
+    content += `Title: ${recipe.title}\n`;
+    content += `Description: ${recipe.description}\n`;
+    content += `Cooking Time: ${recipe.cookingTime} minutes\n`;
+    content += `Servings: ${recipe.servings}\n`;
+    content += `Difficulty: ${recipe.difficulty}\n`;
+    content += `Ingredients:\n${recipe.ingredients.join('\n')}\n`;
+    content += `Instructions:\n${recipe.instructions}\n\n`;
+    content += '---------------------------------------------\n\n';
+  });
+  
+  return content;
+}
+
+function createSpreadsheetContent(recipes: Recipe[]): string {
+  // Create a simple CSV-like format for spreadsheets
+  let rows = [];
+  
+  // Header row
+  rows.push(['Title', 'Description', 'Cooking Time', 'Servings', 'Difficulty', 'Ingredients', 'Instructions'].join(','));
+  
+  // Data rows
+  recipes.forEach((recipe: Recipe) => {
+    const row = [
+      `"${recipe.title.replace(/"/g, '""')}"`, // Escape quotes in CSV
+      `"${recipe.description.replace(/"/g, '""')}"`,
+      recipe.cookingTime,
+      recipe.servings,
+      `"${recipe.difficulty}"`,
+      `"${recipe.ingredients.join('; ').replace(/"/g, '""')}"`,
+      `"${recipe.instructions.replace(/"/g, '""')}"`
+    ];
+    
+    rows.push(row.join(','));
+  });
+  
+  return rows.join('\n');
 }
 
 export function downloadReport(blob: Blob, fileName: string): void {
@@ -64,7 +118,7 @@ function getFileType(format: string): string {
   switch (format) {
     case 'xlsx':
     case 'xls':
-      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      return 'application/vnd.ms-excel';
     case 'pdf':
       return 'application/pdf';
     default:

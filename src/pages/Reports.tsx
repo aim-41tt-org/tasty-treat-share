@@ -2,7 +2,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
-import { Category, User } from "@/types";
+import { Category, User, Recipe } from "@/types";
 import { getCategories } from "@/api/categories";
 import { getCurrentUser } from "@/api/auth";
 import { generateReport, downloadReport } from "@/api/reports";
@@ -16,8 +16,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { FileSpreadsheet, FileText, Loader2 } from "lucide-react";
+import { FileSpreadsheet, FileText, Loader2, BarChart } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { ChartContainer } from "@/components/ui/chart";
+import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 
 export default function Reports() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -27,6 +29,7 @@ export default function Reports() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedFormat, setSelectedFormat] = useState<'xlsx' | 'xls' | 'pdf'>('xlsx');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [reportStats, setReportStats] = useState<{count: number, message: string} | null>(null);
   const { isDarkMode } = useTheme();
   
   useEffect(() => {
@@ -56,6 +59,7 @@ export default function Reports() {
   const handleGenerateReport = async () => {
     try {
       setIsGenerating(true);
+      setReportStats(null);
       
       const reportParams = {
         type: selectedType,
@@ -68,18 +72,56 @@ export default function Reports() {
       
       // Generate filename
       const date = new Date().toISOString().split('T')[0];
-      const reportType = selectedType === 'category' ? 'category' : 'user';
-      const reportFormat = selectedFormat;
-      const fileName = `recipes-${reportType}-${date}.${reportFormat}`;
+      const typeName = selectedType === 'category' 
+        ? categories.find(c => c.id === selectedCategory)?.name || 'category' 
+        : 'user';
+      const fileName = `recipes-${selectedType}-${typeName}-${date}.${selectedFormat}`;
       
       downloadReport(reportBlob, fileName);
+      
+      // Get recipes count info for statistics
+      const recipesJson = localStorage.getItem('recipes');
+      if (recipesJson) {
+        const recipes = JSON.parse(recipesJson);
+        const filteredRecipes = recipes.filter((recipe: Recipe) => {
+          if (selectedType === 'category' && selectedCategory) {
+            return recipe.categoryId === selectedCategory;
+          }
+          if (selectedType === 'user' && currentUser?.id) {
+            return recipe.userId === currentUser.id;
+          }
+          return false;
+        });
+        
+        setReportStats({
+          count: filteredRecipes.length,
+          message: `Отчёт содержит ${filteredRecipes.length} ${getRecipeLabel(filteredRecipes.length)}`
+        });
+      }
       
       toast.success("Отчет успешно сгенерирован");
     } catch (error) {
       console.error('Error generating report:', error);
-      toast.error("Не удалось сгенерировать отчет");
+      let errorMessage = "Не удалось сгенерировать отчет";
+      
+      if (error instanceof Error && error.message === 'No recipes found for selected criteria') {
+        errorMessage = "Нет рецептов для выбранных критериев";
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  // Helper function to correctly pluralize "рецепты" in Russian
+  const getRecipeLabel = (count: number): string => {
+    if (count % 10 === 1 && count % 100 !== 11) {
+      return 'рецепт';
+    } else if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) {
+      return 'рецепта';
+    } else {
+      return 'рецептов';
     }
   };
 
@@ -205,6 +247,15 @@ export default function Reports() {
                         "Сгенерировать отчет"
                       )}
                     </Button>
+                    
+                    {reportStats && (
+                      <div className={`mt-4 p-3 rounded-md ${isDarkMode ? 'bg-gray-700' : 'bg-green-50'}`}>
+                        <p className="text-sm font-medium flex items-center">
+                          <BarChart className="h-4 w-4 mr-2" />
+                          {reportStats.message}
+                        </p>
+                      </div>
+                    )}
                   </>
                 )}
               </CardContent>
